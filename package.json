@@ -4,7 +4,9 @@
   "private": true,
   "scripts": {
     "dev": "wrangler dev",
-    "deploy": "wrangler publish"
+    "build": "wrangler build",
+    "preview": "wrangler preview",
+    "deploy": "wrangler deploy"
   },
   "dependencies": {
     "@graphql-tools/schema": "^10.0.0",

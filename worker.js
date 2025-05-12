@@ -1,0 +1,87 @@
+// Import necessary dependencies (you'll need to install these)
+import { createYoga } from 'graphql-yoga'
+import { makeExecutableSchema } from '@graphql-tools/schema'
+
+// Define GraphQL schema
+const typeDefs = `
+  type Query {
+    chat(message: String!): ChatResponse!
+  }
+
+  type ChatResponse {
+    text: String!
+  }
+`
+
+// Create the resolver functions
+const resolvers = {
+    Query: {
+        chat: async (_, { message }, ctx) => {
+            // OpenAI API key should be stored as a Workers secret
+            const apiKey = ctx.env.OPENAI_API_KEY
+
+            if (!apiKey) {
+                throw new Error('OpenAI API key is not configured')
+            }
+
+            try {
+                const response = await fetch('https://api.openai.com/v1/chat/completions', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${apiKey}`
+                    },
+                    body: JSON.stringify({
+                        model: 'gpt-3.5-turbo',
+                        messages: [
+                            {
+                                role: 'system',
+                                content: '请用中文回复用户的所有问题。'
+                            },
+                            {
+                                role: 'user',
+                                content: message
+                            }
+                        ],
+                        temperature: 0.7
+                    })
+                })
+
+                if (!response.ok) {
+                    const error = await response.json()
+                    throw new Error(`OpenAI API error: ${JSON.stringify(error)}`)
+                }
+
+                const data = await response.json()
+                return {
+                    text: data.choices[0].message.content
+                }
+            } catch (error) {
+                console.error('Error calling OpenAI:', error)
+                throw new Error('Failed to get response from OpenAI')
+            }
+        }
+    }
+}
+
+// Create executable schema
+const schema = makeExecutableSchema({ typeDefs, resolvers })
+
+// Create Yoga GraphQL server
+const yoga = createYoga({
+    schema,
+    graphqlEndpoint: '/',
+    landingPage: false,
+    cors: {
+        origin: '*', // For production, set to your frontend origin
+        credentials: true
+    }
+})
+
+// Create Workers handler
+export default {
+    async fetch(request, env, ctx) {
+        // Add env to context for accessing secrets
+        return yoga.fetch(request, { env })
+    }
+} 

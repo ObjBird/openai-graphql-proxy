@@ -6,11 +6,28 @@ import { makeExecutableSchema } from '@graphql-tools/schema'
 const typeDefs = `
   type Query {
     chat(message: String!): ChatResponse!
-    askOpenAI(message: String!): ChatResponse!
+    askOpenAI(prompt: String!, model: String): OpenAIResponse!
   }
 
   type ChatResponse {
     text: String!
+  }
+
+  type OpenAIResponse {
+    text: String!
+    usage: UsageInfo!
+    metadata: MetadataInfo!
+  }
+
+  type UsageInfo {
+    promptTokens: Int!
+    completionTokens: Int!
+    totalTokens: Int!
+  }
+
+  type MetadataInfo {
+    model: String!
+    finishReason: String!
   }
 `
 
@@ -62,7 +79,7 @@ const resolvers = {
                 throw new Error('Failed to get response from OpenAI')
             }
         },
-        askOpenAI: async (_, { message }, ctx) => {
+        askOpenAI: async (_, { prompt, model = "gpt-3.5-turbo" }, ctx) => {
             // OpenAI API key should be stored as a Workers secret
             const apiKey = ctx.env.OPENAI_API_KEY
 
@@ -78,7 +95,7 @@ const resolvers = {
                         'Authorization': `Bearer ${apiKey}`
                     },
                     body: JSON.stringify({
-                        model: 'gpt-3.5-turbo',
+                        model: model,
                         messages: [
                             {
                                 role: 'system',
@@ -86,7 +103,7 @@ const resolvers = {
                             },
                             {
                                 role: 'user',
-                                content: message
+                                content: prompt
                             }
                         ],
                         temperature: 0.7
@@ -100,7 +117,16 @@ const resolvers = {
 
                 const data = await response.json()
                 return {
-                    text: data.choices[0].message.content
+                    text: data.choices[0].message.content,
+                    usage: {
+                        promptTokens: data.usage.prompt_tokens,
+                        completionTokens: data.usage.completion_tokens,
+                        totalTokens: data.usage.total_tokens
+                    },
+                    metadata: {
+                        model: model,
+                        finishReason: data.choices[0].finish_reason
+                    }
                 }
             } catch (error) {
                 console.error('Error calling OpenAI:', error)

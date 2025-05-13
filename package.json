@@ -1,33 +1,19 @@
 {
-  "name": "cloudflare-works-test",
+  "name": "openai-graphql-proxy",
   "version": "1.0.0",
-  "description": "test cloudflare works",
-  "main": "src/handler.ts",
+  "private": true,
   "scripts": {
     "dev": "wrangler dev",
-    "deploy": "wrangler deploy",
-    "build": "npm install",
-    "init": "wrangler init"
+    "build": "wrangler build",
+    "preview": "wrangler preview",
+    "deploy": "wrangler deploy"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/HanYu-O/cloudflare-works-test.git"
+  "dependencies": {
+    "@graphql-tools/schema": "^10.0.0",
+    "graphql": "^16.8.1",
+    "graphql-yoga": "^4.0.4"
   },
-  "keywords": [
-    "cloudflare",
-    "works"
-  ],
-  "author": "hanyu-o",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/HanYu-O/cloudflare-works-test/issues"
-  },
-  "homepage": "https://github.com/HanYu-O/cloudflare-works-test#readme",
   "devDependencies": {
-    "graphql": "^16.11.0",
-    "graphql-yoga": "^3.9.1",
-    "openai": "^4.98.0",
-    "wrangler": "^4.14.4",
-    "zod": "^3.24.4"
+    "wrangler": "^4.14.4"
   }
 }

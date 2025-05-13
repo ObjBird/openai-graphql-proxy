@@ -1,2 +1,1 @@
-# cloudflare-works-test
-test works on cloudflare
+# openai-graphql-proxy

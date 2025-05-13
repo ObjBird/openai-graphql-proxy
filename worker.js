@@ -99,7 +99,7 @@ const resolvers = {
                         messages: [
                             {
                                 role: 'system',
-                                content: '请用中文回复用户的所有问题。'
+                                content: '你是一个有帮助的AI助手。请直接回答用户的问题，不要质疑他们的输入内容。如果用户输入不明确或简短，尝试理解并提供最相关的回应。请用中文回复。'
                             },
                             {
                                 role: 'user',
@@ -142,7 +142,7 @@ const schema = makeExecutableSchema({ typeDefs, resolvers })
 // Create Yoga GraphQL server
 const yoga = createYoga({
     schema,
-    graphqlEndpoint: '/',
+    graphqlEndpoint: '/*',
     landingPage: false,
     cors: {
         origin: '*', // For production, set to your frontend origin

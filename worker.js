@@ -148,7 +148,7 @@ const yoga = createYoga({
     landingPage: false,
     cors: {
         origin: '*', // For production, set to your frontend origin
-        credentials: true
+        credentials: false
     }
 })
 

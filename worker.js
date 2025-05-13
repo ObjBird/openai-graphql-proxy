@@ -40,6 +40,8 @@ const resolvers = {
 
             if (!apiKey) {
                 throw new Error('OpenAI API key is not configured')
+            }else{
+                console.log(apiKey,'apiKey')
             }
 
             try {

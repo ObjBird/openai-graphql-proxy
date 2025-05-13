@@ -40,8 +40,6 @@ const resolvers = {
 
             if (!apiKey) {
                 throw new Error('OpenAI API key is not configured')
-            }else{
-                console.log(apiKey,'apiKey')
             }
 
             try {
@@ -147,14 +145,30 @@ const yoga = createYoga({
     graphqlEndpoint: '/*',
     landingPage: false,
     cors: {
-        origin: '*', // For production, set to your frontend origin
-        credentials: false
+        origin: '*',
+        methods: ['GET', 'POST', 'OPTIONS'],
+        allowedHeaders: ['Content-Type', 'Authorization', 'Apollo-Require-Preflight'],
+        credentials: false,
+        maxAge: 86400
     }
 })
 
 // Create Workers handler
 export default {
     async fetch(request, env, ctx) {
+        // Add CORS preflight request handling
+        if (request.method === 'OPTIONS') {
+            return new Response(null, {
+                status: 204,
+                headers: {
+                    'Access-Control-Allow-Origin': '*',
+                    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+                    'Access-Control-Allow-Headers': 'Content-Type, Authorization, Apollo-Require-Preflight',
+                    'Access-Control-Max-Age': '86400',
+                }
+            });
+        }
+
         // Add env to context for accessing secrets
         return yoga.fetch(request, { env })
     }
